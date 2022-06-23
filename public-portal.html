@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Aretas IoT Platform UI</title>
+
+    <link rel="shortcut icon" href="https://iot.aretas.ca/html/images/favicon-32x32.png" type="image/png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans">
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://iot.aretas.ca/html/js/bootstrap-4.1.0-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- leaflet css -->
+    <link href="https://iot.aretas.ca/html/js/leaflet-1.8.0/leaflet.css" rel="stylesheet">
+    <link href="https://iot.aretas.ca/html/js/leaflet-1.8.0/leaflet-markercluster-1.4.1/MarkerCluster.css" rel="stylesheet">
+    <link href="https://iot.aretas.ca/html/js/leaflet-1.8.0/leaflet-markercluster-1.4.1/MarkerCluster.Default.css" rel="stylesheet">
+    <link href="https://iot.aretas.ca/html/js/leaflet-1.8.0/leaflet.legend.css" rel="stylesheet">
+
+    <!--font-awesome-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="https://iot.aretas.ca/html/iot-cloud-main.css" rel="stylesheet">
+
+    <style>
+        body .modal-dialog {
+            margin-left: 2em
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 100%;
+            }
+        }
+
+        .sensordata-square {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .marker-container {
+            padding: 1em;
+        }
+
+        #header-logo-image {
+            height: 45px;
+        }
+    </style>
+</head>
+
+<body id="pub-portal">
+
+    <nav id="main-nav" class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+        <a href="#">
+            <div class="d-inline mr-2"><img id="header-logo-image" src="images/logo-dark.png"></div>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <div class="d-inline">
+                <h5>IAQ Sensor Data</h5>
+            </div>
+            <ul class="navbar-nav mr-auto">
+
+            </ul>
+            <div class="input-group" style="max-width:20%">
+                <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </div>
+                </form>
+            </div>
+    </nav>
+
+    <main role="main" class="container bg-light">
+        <div class="clearfix"></div>
+        <div id="map-container" class="bg-dark">
+            <div id="map-controls-group" class="gradient-buttons" style="font-size:80%;">
+                <div class="form-check form-check-inline">
+                    <label class="" style="white-space:nowrap;" for="select-chart-interval">Sensor Type:&nbsp;</label>
+                    <select id="select-sensor-type" class="form-control form-control-sm">
+
+                    </select>
+                </div>
+                <div class="form-check-inline">
+                    <div class="loader" id="loader-sm"></div>
+                </div>
+            </div>
+
+            <div id="sensor-data-map" style="min-height:750px;" class="m-2 bg-dark"></div>
+            <div id="modal-chart-placeholder">
+                <!-- Modal For Full Chart Content -->
+                <div class="modal chartModal" id="modalChart" tabindex="-1" role="dialog" aria-labelledby="chartModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-med" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="chartModalLabel"></h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body" id="modal-full-chart">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="https://iot.aretas.ca/html/js/jquery-3.2.1.js"></script>
+    <script src="https://iot.aretas.ca/html/js/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+    <script src="https://iot.aretas.ca/html/js/jquery.sparkline.js"></script>
+    <script src="https://iot.aretas.ca/html/js/moment.js"></script>
+    <script src="https://iot.aretas.ca/html/js/popper.min.js"></script>
+    <script src="https://iot.aretas.ca/html/js/bootstrap-4.1.0-dist/js/bootstrap.min.js"></script>
+    <script src="https://iot.aretas.ca/html/js/bootbox.min.js"></script>
+    <script src="https://iot.aretas.ca/html/js/Chart.js"></script>
+    <script src="https://iot.aretas.ca/html/js/simple-statistics.js"></script>
+    <script src="https://iot.aretas.ca/html/js/leaflet-1.8.0/leaflet.js"></script>
+    <script src="https://iot.aretas.ca/html/js/leaflet-1.8.0/leaflet-markercluster-1.4.1/leaflet.markercluster.js"></script>
+    <script src="https://iot.aretas.ca/html/js/leaflet-1.8.0/leaflet.legend.js"></script>
+    <script src="https://iot.aretas.ca/html/js/js.cookie.js"></script>
+    <script src="js/aretas/AretasPubCommons.js"></script>
+    <script src="js/aretas/AretasPub.js"></script>
+    <script src="js/aretas/SensorLocationInfoPanel.js"></script>
+
+
+    <script>
+        $(document).ready(() => {
+            docReady();
+        });
+
+        let AAI; //aretas application instance
+        let APC; //aretas pub instance
+
+        let leafletMap = null; //reference to the Leaflet map
+        let leafletMs = null;
+        let sensorDataIconLayer;
+
+        let markerLayerGroup = null;
+        let lastSensorDataMap = null;
+        let timeoutRef = null;
+        let selectedDeviceParams = {};
+
+        async function docReady() {
+
+            APC = new AretasPub(__pubAccessToken, __locationIds);
+            await APC.init();
+
+            console.log(APC.siteLocationViews);
+
+            bootstrapMap();
+            getLatestData(APC.siteLocationViews);
+
+            $('#select-sensor-type').change(() => {
+                updateMarkers(lastSensorDataMap)
+            });
+
+        }
+
+        function compareSensorDatums(a, b) {
+
+            if (a.data < b.data) {
+                return -1;
+            }
+
+            if (a.data > b.data) {
+                return 1;
+            }
+
+            return 0;
+        }
+
+        /**
+         * fetch the latest cached data
+         */
+        async function getLatestData(sensorLocations) {
+
+            const sensorIds = [];
+
+            for (const siteLocationView of APC.siteLocationViews) {
+                for (const sensorLocation of siteLocationView.sensorLocations) {
+                    sensorIds.push(sensorLocation.id);
+                }
+            }
+
+            const sensorData = await APC.getLatestDataFromSensors(sensorIds);
+
+            console.debug("Latest Sensor Data:");
+            console.debug(sensorData);
+
+            let sensorDataMap = new Map();
+
+            for (const sensorDatum of sensorData) {
+                const type = sensorDatum.type;
+
+                let typeArr = sensorDataMap.get(type);
+                if (!typeArr) {
+                    typeArr = [];
+                    sensorDataMap.set(type, typeArr);
+                }
+
+                typeArr.push(sensorDatum);
+            }
+
+            //sort each Map entry by data (low to high)
+            sensorDataMap.forEach((value, key) => {
+                value.sort(compareSensorDatums);
+            });
+
+            //set the global reference
+            lastSensorDataMap = sensorDataMap;
+
+            populateTypeSelect(sensorDataMap.keys());
+            updateMarkers(sensorDataMap);
+
+            setTimeout(() => {
+                getLatestData(sensorLocations);
+            }, 120000);
+        }
+
+        function populateTypeSelect(keys) {
+
+            const selectSensorType = $('#select-sensor-type');
+
+            let optSelected = parseInt(selectSensorType.val());
+
+            selectSensorType.empty();
+
+            const arrTypes = Array.from(keys);
+
+            if (isNaN(optSelected)) {
+
+                if (arrTypes.includes(246))
+                    optSelected = 246;
+                else {
+                    optSelected = arrTypes[0];
+                }
+            }
+
+            const typesMap = new Map();
+
+            arrTypes.forEach((value, index) => {
+                let sensorTypeInfo = APC.getSensorTypeInfo(value);
+                typesMap.set(value, sensorTypeInfo);
+            });
+
+            const typesMapSorted = new Map([...typesMap.entries()].sort((a, b) => {
+                return sortNumericProperty("rank", true)(a[1], b[1]);
+            }));
+
+            typesMapSorted.forEach((value, key, map) => {
+
+                const opt = document.createElement("option");
+                opt.setAttribute("value", key);
+                opt.append(value.label + " " + value.units);
+                selectSensorType.append(opt);
+
+            });
+
+            selectSensorType.val('' + optSelected);
+        }
+
+        function getDataForMac(type, sensorDataMap, targetMac) {
+
+            const typeArr = sensorDataMap.get(type);
+            for (const datum of typeArr) {
+
+                if (datum.mac == targetMac) {
+                    return datum;
+                }
+            }
+
+            return null;
+        }
+
+        function getAllDataForMac(sensorDataMap, targetMac) {
+            const ret = [];
+
+            sensorDataMap.forEach((dataArr, type) => {
+                for (const sensorDatum of dataArr) {
+                    if (sensorDatum.mac == targetMac) {
+                        ret.push(sensorDatum);
+                    }
+                }
+            });
+
+            return ret;
+        }
+
+        function updateMarkers(sensorDataMap) {
+
+            const selectedType = parseInt($('#select-sensor-type').val());
+
+            markerLayerGroup.clearLayers();
+
+            for (const siteLocationView of APC.siteLocationViews) {
+
+                for (const device of siteLocationView.sensorLocations) {
+
+                    if (device.hasOwnProperty("lat") && device.hasOwnProperty("lon")) {
+
+                        const sensorDatum = getDataForMac(selectedType, sensorDataMap, device.mac);
+
+                        if (sensorDatum !== null) {
+
+                            const container = document.createElement("div");
+
+                            const iconDiv = document.createElement("div");
+                            iconDiv.setAttribute("id", "aretas-icon-div-" + device.id);
+                            iconDiv.setAttribute('class', "aretas-icon-div");
+                            iconDiv.append(sensorDatum.data.toFixed(0));
+
+                            //console.debug("Getting icon div color:");
+                            let bgColor = APC.getIconDivColor(selectedType, sensorDatum.data);
+                            let bgStopGradient = LightenDarkenColor(bgColor, -10);
+                            let borderColor = LightenDarkenColor(bgColor, +50);
+                            let textColor = getContrastingFontColor(bgColor);
+
+                            let styleStr = `background-color: ${bgColor}; border-color: ${borderColor}; color: ${textColor};`;
+
+                            iconDiv.setAttribute('style', styleStr);
+
+                            container.append(iconDiv);
+
+                            const markerHTML = container.innerHTML;
+
+                            const iconOpts = {
+                                html: markerHTML,
+                                className: "aretas-leaflet-icon-overrides",
+                                iconSize: [20, 20],
+                            };
+
+                            const markerIcon = L.divIcon(iconOpts);
+
+                            //@TODO: add in the zIndex property to float problem statuses to the top
+                            //a kludge might be to set the zIndex to some normalized value of the sensor data from 0-1000 or something
+                            const markerOpts = {
+                                icon: markerIcon,
+                                zIndexOffset: getZindexOffset(sensorDatum.type, sensorDatum.data),
+                            };
+
+                            const marker = L.marker([device.lat, device.lon], markerOpts).bindTooltip(device.description, {
+                                offset: [20, 0]
+                            });
+
+                            //create a render target for the tile
+                            const markerContainer = document.createElement("div");
+                            markerContainer.setAttribute("id", `marker-container-mac-${sensorDatum.mac}`);
+                            markerContainer.setAttribute("class", "marker-container");
+                            markerContainer.style.minWidth = "500px";
+                            markerContainer.style.minHeight = "500px";
+
+                            const allDataForMac = getAllDataForMac(sensorDataMap, sensorDatum.mac);
+
+                            //console.debug(sensorDataMap);
+                            //console.debug("All Data For Mac:");
+                            //console.debug(allDataForMac);
+                            const sensorLocationInfoPanel = new SensorLocationInfoPanel(device, allDataForMac, APC);
+
+                            marker.bindPopup(markerContainer.outerHTML, {
+                                maxWidth: 510
+                            }).on('popupopen', () => {
+
+                                //render the popup??
+                                sensorLocationInfoPanel.render(document.getElementById(`marker-container-mac-${sensorDatum.mac}`));
+                                //setting the global placeholder var so that if we change the interval
+                                //there is a reference to remake the chart
+                                selectedDeviceParams = {
+                                    description: device.description,
+                                    mac: sensorDatum.mac,
+                                    type: sensorDatum.type
+                                };
+
+                            });
+
+                            const ttOpts = {
+                                permanent: true,
+                                className: "my-label",
+                                offset: [0, 0],
+                                direction: "top",
+                            };
+
+                            markerLayerGroup.addLayer(marker);
+                        }
+
+
+                    }
+
+                }
+            }
+
+        }
+
+        function getZindexOffset(type, value) {
+
+            let sensorIntelBin = APC.getSensorTypeIntelBin(type, value);
+
+            switch (sensorIntelBin.strokeStyle) {
+                case "red":
+                    return 500;
+                    break;
+
+                case "yellow":
+                    return 100;
+                    break;
+
+                default:
+                    return 1;
+            }
+        }
+
+        /**
+         * Initialize the map
+         */
+        function bootstrapMap() {
+
+            //setup the global map reference
+            if (leafletMap == null) {
+
+                leafletMap = L.map('sensor-data-map').setView([51.505, -0.09], 13);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(leafletMap);
+
+                L.control.Legend({
+                    position: "bottomleft",
+                    legends: [{
+                            label: "Within standard ranges",
+                            type: "rectangle",
+                            color: "#000000",
+                            fillColor: "green",
+                            weight: 2
+                        },
+                        {
+                            label: "Borderline standard ranges",
+                            type: "rectangle",
+                            color: "#000000",
+                            fillColor: "yellow",
+                            weight: 2
+                        },
+                        {
+                            label: "Outside of standard ranges",
+                            type: "rectangle",
+                            color: "#000000",
+                            fillColor: "red",
+                            weight: 2
+                        }
+                    ]
+                }).addTo(leafletMap);
+            }
+
+            //setup the global marker layer group
+            if (markerLayerGroup == null) {
+                //markerLayerGroup = L.layerGroup().addTo(leafletMap);
+                markerLayerGroup = L.markerClusterGroup({
+                    spiderfyOnMaxZoom: true,
+                    zoomToBoundsOnClick: true,
+                    spiderLegPolylineOptions: {
+                        weight: 0.0,
+                    },
+                });
+            }
+
+            leafletMap.addLayer(markerLayerGroup);
+
+            centerMapToBounds(APC.siteLocationViews);
+        }
+
+        /**
+         * center the map to the extents of the locations in the account
+         */
+        function centerMapToBounds(siteLocationViews) {
+
+            console.log(siteLocationViews);
+
+            //arbitrary default location
+            leafletMap.setView([37.7749, -122.4194], 13);
+
+            let latLngBndsData = [];
+
+            for (const siteLocationView of siteLocationViews) {
+                for (const sensorLocation of siteLocationView.sensorLocations) {
+                    latLngBndsData.push(L.latLng(sensorLocation.lat, sensorLocation.lon));
+                }
+            }
+
+            try {
+
+                leafletMap.fitBounds(latLngBndsData);
+                //leafletMap.setZoom(leafletMap.getZoom() + 1);
+
+            } catch (error) {
+                console.log(error);
+            }
+
+        }
+    </script>
+
+</body>
+
+</html>
