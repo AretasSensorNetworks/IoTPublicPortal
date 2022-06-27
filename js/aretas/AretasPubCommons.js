@@ -13,11 +13,11 @@ const ASNHTMLURL = __METHOD + "//" + __RHOST + "/html/";
 const ASNAPIURL = __METHOD + "//" + __RHOST + "/rest/";
 
 //the public access token you created for your account
-const __pubAccessToken = "";
+const __pubAccessToken = "b5b38d6e-69a8-427e-a9d0-adbd08c94cc7";
 
 //an optional list of location IDs to filter on
 //if you do not specify any, all of the public device locations will be displayed
-const __locationIds = [""];
+const __locationIds = ["88289adbff094ea49f77b41f88b86f19","954b5b48bde240578e74e92ee7ffed55"];
 
 /**
  * 

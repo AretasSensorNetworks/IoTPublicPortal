@@ -160,14 +160,15 @@ class AretasPub {
 
         const urlParams = new URLSearchParams(queryData);
 
-        //urlparams does not support array like 
-        for (const sensorId of sensorIds) {
-            urlParams.append('sensorLocationIds', sensorId);
-        }
-
         try {
 
-            const response = await fetch(`${url}?` + urlParams, {});
+            const response = await fetch(`${url}?` + urlParams, {
+                method:'POST',
+                headers: {
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(sensorIds),
+            });
             const data = await response.json();
             return data;
 
