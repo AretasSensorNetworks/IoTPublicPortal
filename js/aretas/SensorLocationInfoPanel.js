@@ -237,7 +237,7 @@ class SensorLocationInfoPanel {
                 radius: 0,
                 hoverRadius: 4,
                 hitRadius: 4,
-                label: sInfo.label,
+                label: `${sInfo.label} (${sInfo.units})`,
                 data: dataArr,
                 showLine: true,
                 fill: false,
