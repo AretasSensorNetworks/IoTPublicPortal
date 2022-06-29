@@ -71,9 +71,9 @@
 
             </ul>
             <div class="input-group" style="max-width:20%">
-                <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+                <input id="nav-search-text" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
                 <div class="input-group-append">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                    <button id="nav-btn-search-submit" class="btn btn-outline-success my-2 my-sm-0">Search</button>
                 </div>
                 </form>
             </div>
@@ -230,21 +230,40 @@
             }, 120000);
         }
 
+        async function goToLocation() {
+
+            if (leafletMap) {
+
+                const txtToGeoCode = $('#txt-go-to-location').val();
+
+                const latLng = await APC.geocodeLocation(null, txtToGeoCode);
+
+                if (latLng) {
+                    leafletMap.setView([latLng.lat, latLng.lng], 14);
+                } else {
+                    bootbox.alert("Could not geocode that location, try again");
+                }
+
+            }
+
+        }
+
+
         function populateTypeSelect(keys) {
 
-            const selectSensorType = $('#select-sensor-type');
+            const selectSensorType = document.getElementById('select-sensor-type');
 
-            let optSelected = parseInt(selectSensorType.val());
+            let optSelected = parseInt(selectSensorType.value);
 
-            selectSensorType.empty();
+            selectSensorType.innerHTML = ""
 
             const arrTypes = Array.from(keys);
 
             if (isNaN(optSelected)) {
-
-                if (arrTypes.includes(246))
-                    optSelected = 246;
-                else {
+                //default to show temperature but prefer fahrenheit
+                if (arrTypes.includes(246) || arrTypes.includes(242)) {
+                    optSelected = arrTypes.includes(242) ? 242 : 246;
+                } else {
                     optSelected = arrTypes[0];
                 }
             }
@@ -269,7 +288,7 @@
 
             });
 
-            selectSensorType.val('' + optSelected);
+            selectSensorType.value = optSelected;
         }
 
         function getDataForMac(type, sensorDataMap, targetMac) {
