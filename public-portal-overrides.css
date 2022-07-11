@@ -1,0 +1,52 @@
+/**
+The original yellow/orange coloring is confusing given those are
+warning / caution colors
+**/
+.marker-cluster-small {
+    background-color: rgba(55, 79, 184, 1.0);
+}
+
+.marker-cluster-small div {
+    background-color: rgba(130, 187, 233, 1.0);
+}
+
+.marker-cluster-medium {
+    background-color: rgba(149, 204, 237, 1.0);
+}
+
+.marker-cluster-medium div {
+    background-color: rgba(180, 223, 246, 1.0);
+}
+
+.marker-cluster-large {
+    background-color: rgba(78, 27, 127, 1.0);
+}
+
+.marker-cluster-large div {
+    background-color: rgba(50, 0, 99, 1.0);
+}
+
+/* IE 6-8 fallback colors */
+.leaflet-oldie .marker-cluster-small {
+    background-color: rgb(55, 79, 184);
+}
+
+.leaflet-oldie .marker-cluster-small div {
+    background-color: rgb(130, 187, 233);
+}
+
+.leaflet-oldie .marker-cluster-medium {
+    background-color: rgb(149, 204, 237);
+}
+
+.leaflet-oldie .marker-cluster-medium div {
+    background-color: rgb(180, 223, 246);
+}
+
+.leaflet-oldie .marker-cluster-large {
+    background-color: rgb(78, 27, 127);
+}
+
+.leaflet-oldie .marker-cluster-large div {
+    background-color: rgb(50, 0, 99);
+}
